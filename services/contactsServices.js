@@ -1,59 +1,9 @@
-import fs from 'fs/promises'
-import path from 'node:path'
-import { v4 as uuidv4 } from 'uuid';
+import { Contact } from "../schemas/contactSchemas.js";
 
-const contactsPath = path.join(process.cwd(), 'src', 'db', 'contacts.json')
 
-export async function listContacts() {
-    const data = await fs.readFile(contactsPath, 'utf-8')
-    return JSON.parse(data)
-}
-
-export async function getContactById(contactId) {
-    const data = await listContacts()
-    const contact = data.find(item => item.id === contactId);
-
-    if (!contact) {
-        return null;
-    }
-
-    return contact;
-}
-
-export async function removeContact(contactId) {
-    const data = await listContacts()
-    const index = data.findIndex(item => item.id === contactId)
-
-    if (index === -1) {
-        return null
-    }
-
-    const deletedContact = data.splice(index, 1)
-
-    await fs.writeFile(contactsPath, JSON.stringify(data, null, 2))
-
-    return deletedContact
-}
-
-export async function addContact(name, email, phone) {
-    const data = await listContacts()
-    const newContact = { id: uuidv4(), name, email, phone }
-
-    data.push(newContact)
-
-    await fs.writeFile(contactsPath, JSON.stringify(data, null, 2))
-
-    return newContact
-}
-
-export async function updateContact(id) {
-    const contacts = await listContacts();
-    const index = contacts.findIndex(contact => contact.id === id);
-    if (index === -1) {
-      return null;
-    }
-    const updatedContact = { ...contacts[index], ...updates };
-    contacts[index] = updatedContact;
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    return updatedContact;
-}
+export const getContacts = () => Contact.find()
+export const getContactById = (id) => Contact.findOne({ _id: id });
+export const removeContact = (id) => Contact.findByIdAndDelete(id)
+export const addContact = (data) => Contact.create(data)
+export const updateContactService = (id, body) => Contact.findOneAndUpdate(id, body)
+export const updateStatusContactService = (id, body) => Contact.findByIdAndUpdate(id, body)
